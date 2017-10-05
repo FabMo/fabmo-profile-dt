@@ -1,0 +1,106 @@
+'!FABMO!name: Home Tool
+'!FABMO!description: Automatically Set Axis Zero for XYZ
+' Name: Home Tool
+' Description: Automatically Set Axis Zero for XYZ [C3]
+' Platform: SHOPBOT DT Tools
+' Author: Ryan Sturmer, Ted Hall
+' History:
+'   2017/08/01 - Initial version (rs)
+'   2017/9/15 - Refactored (th); use persistent offsets, manage z
+
+SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
+
+'--- Settings ---
+' Persistent Variables can ge managed from the Fire-Up App
+$current_cutter_Zoffset := .25               ' Initializes permanent variables if not already set
+$x_backoff := .25
+$y_backoff := .25 
+$z_backoff := .25
+
+&homing_input = 3      ' Input # for prox switch; ' Later also using system variable %(53) to read input; ... a temporary kludge
+&x_search = -38.0
+&x_search_speed = 2.5
+&x_slow_search_speed = .25
+&y_search = -26.0
+&y_search_speed = 2.5
+&y_slow_search_speed = .25
+&z_search = 8.0
+&z_search_speed = 1.5
+&z_slow_search_speed = .15
+&home_position_x = 0   ' If you want to set an alternate home, you can do it here
+&home_position_y = 0
+
+MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
+JS, 4, 4
+
+' -------- Main Program Section --------
+GOSUB backoff_if_needed
+GOSUB home_z
+GOSUB home_x
+GOSUB home_y
+GOSUB go_home
+GOSUB offset_z_cutter                        ' Adds the offset for Z cutter; SEE COMMENTS IN SUBROUTINE
+
+END
+
+' --- Subroutines ---
+home_x:
+    PX, %(1) + &x_search, &x_search_speed, &homing_input  ' Search for prox switch
+    JX, %(1) + $x_backoff
+	VA,0,,,,,,0,,,,,                                      ' Set 0 location
+    &target_ck = (-1 * (0.05 + $x_backoff))               ' Target just past prox
+    PX, &target_ck, &x_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    IF %(1) = &target_ck THEN GOSUB missed_target
+    JX, %(1) + $x_backoff
+	VA,0,,,,,,0,,,,,                                      ' Set 0 location
+	RETURN
+
+home_y:
+	PY, %(2) + &y_search, &y_search_speed, &homing_input  ' Search for prox switch
+    JY, %(2) + $y_backoff
+	VA,,0,,,,,,0,,,,                                      ' Set 0 location
+    &target_ck = (-1 * (0.05 + $y_backoff))               ' Target just past prox
+    PY, &target_ck, &y_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    IF %(2) = &target_ck THEN GOSUB missed_target
+    JY, %(2) + $y_backoff
+	VA,,0,,,,,,0,,,,                                      ' Set 0 location
+	RETURN
+
+home_z:
+	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
+	JZ, %(3) - $z_backoff
+	VA,,,0,,,,,,0,,,                                      ' Set 0 location
+    &target_ck = 0.05 + $z_backoff                        ' Target just past prox
+    PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    IF %(3) = &target_ck THEN GOSUB missed_target
+    JZ, %(3) - $z_backoff
+	VA,,,0,,,,,,0,,,                                      ' Set 0 location
+	RETURN
+
+
+offset_z_cutter:
+   ' Comment (') out the PAUSE Line if you do not want the User Query about Z offset
+   ' Or, comment out call to this subroutine if you NEVER want to include the cutter offset in your zeroing routine
+    PAUSE "Click RESUME to Set Z to most recent Cutter Offset; QUIT to leave Z set at 0"
+    VA,,, $current_cutter_Zoffset
+    RETURN
+
+go_home:
+	J2 &home_position_x, &home_position_y
+	Z2                                                    ' Zero alternate home location (local zero)
+    RETURN
+
+backoff_if_needed:
+    IF %(53) = 1 THEN GOSUB backoff                       ' Some proximity switch was on
+    IF %(53) = 1 THEN GOSUB no_clear
+    RETURN
+    
+backoff:
+    M3, %(1) + $x_backoff, %(2) + $y_backoff, %(3) - $z_backoff
+    RETURN
+
+missed_target:
+    END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
+
+no_clear:
+    END "Proximity Switch Not Clear!"                     ' Could not clear. use FAILED type END

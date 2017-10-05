@@ -1,0 +1,24 @@
+'!FABMO!name: Tool Change
+'!FABMO!description: Handles MTC from current posts and tracks tool #
+' Name: Tool Change (temporary, simplified for manual tool change)
+' Description: Handles MTC from current posts and tracks tool #    [C9]
+' Platform: Handibot
+' Author: Ted Hall, Ryan Sturmer
+' History:
+'   2017/09/13 - refactored (th)
+
+$current_tool := 0        ' Weakly initializes permanent tool variable if not already set
+                          ' &Tool will be passed in part file if appropriate post processor used
+
+' --- Main Program ---
+  IF &Tool = $current_tool THEN GOTO NoChange
+  $current_tool = &Tool
+
+  
+  PAUSE "If Tool Change Needed -- Quit Here, else Resume (Manual Tool Change Not Yet Supported)"
+  END
+
+' --- Subroutines ---
+NoChange:
+  END
+

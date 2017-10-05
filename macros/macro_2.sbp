@@ -1,0 +1,77 @@
+'!FABMO!name: Z-Zero
+'!FABMO!description: Set Z-Zero with Zeroing Plate; Use after installing new cutter
+' Name: Z-Zero
+' Description: 
+'   Set Z-Zero with Zeroing Plate; Use after installing new cutter [C2]
+' Platform: Desktop
+' Author: Ted Hall, Ryan Sturmer
+' History:
+'   2016/03/01 - Initial version (th)
+'   2017/09/25 - Refactored (th)
+
+SU, 0                         ' Set to Inches; Units will auto-revert to current starting units at end of file
+
+'--- Settings ---             ' (Adjust permanent variables with Fire-Up! App)
+$current_cutter_Zoffset := .25' Initializes permanent variables if not already set
+$z_backoff := .25
+$ZZeroInput := 1              ' Later also using system variable %(51) to read input; ... a temporary kludge
+$ZZeroPlateThickness := 0.118 ' 0.118" for std plate; 0.57" for pressure plate
+  ' To only use pressure plate, change &ZZeroInput to 5
+  ' ... Adjust plate thickness to 0.57
+  ' ... AND change %(51) to %(55) in check_input subroutine
+
+&ZZeroSearchDistance = -6.0 
+&ZZeroSearchSpeedSlow = 0.1
+&ZZeroSearchSpeedFast = 0.5
+
+MS, 4, 4					  ' Speeds will auto-revert back to current values at end of file
+JS, 5, 5
+
+' -------- Main Program Section --------
+GOSUB check_input
+GOSUB find_z_zero
+END
+
+' --- Subroutines ---
+find_z_zero:    
+   GOSUB home_z        ' Need to make sure we also have Z 0 at top, now we're all set
+   PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
+   &zpos = %(3)
+   PZ, &zpos + &ZZeroSearchDistance, &ZZeroSearchSpeedFast, $ZZeroInput
+   ZZ
+   JZ, $z_backoff 
+   ZZ
+   &reapproach = -2 * $z_backoff 
+   PZ, &reapproach, &ZZeroSearchSpeedSlow, $ZZeroInput
+   ZZ
+   JZ, $z_backoff 
+   VA,,, $z_backoff + $ZZeroPlateThickness
+  ' Read in current System Variables for current Z and Z-tablebase-offset 
+	 &tempTB_Zoffset = %(8) 
+  ' Reset current_cutter and Set Table Base Coordinates and Location to 0 for Z
+     $current_cutter_Zoffset = &tempTB_Zoffset * -1
+   PAUSE "Z-ZEROED and Cutter Length Saved. Make sure to remove Z-Zero Plate and Clip!"
+   RETURN
+
+home_z:
+	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
+	JZ, %(3) - $z_backoff
+	VA,,,0,,,,,,0,,,                                      ' Set 0 location
+    &target_ck = 0.05 + $z_backoff                        ' Target just past prox
+    PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    IF %(3) = &target_ck THEN GOSUB missed_target
+    JZ, %(3) - $z_backoff
+	VA,,,0,,,,,,0,,,                                      ' Set 0 location
+	RETURN
+
+missed_target:
+    END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
+
+check_input:
+    IF %(51) = 1 THEN GOTO check_input_fail
+	RETURN
+
+check_input_fail:
+    END "An Input is already triggered. Cannot zero the tool. Move Off and Retry."
+
+END
