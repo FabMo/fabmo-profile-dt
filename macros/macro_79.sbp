@@ -1,0 +1,36 @@
+'!FABMO!name: Park
+'!FABMO!description: Move Tool to Parking Location (typically to back)
+' Name: Park
+' Description: Move Tool to Parking Location (typically to back) [C79]
+' Platform: Desktop
+' Author: Ted Hall, Ryan Sturmer
+' History:
+'  2/2/17, 3/16/17 th
+
+SU,0                          ' Set to Inches; Units will auto-revert to current starting units at end of file
+
+
+' Best Practice is to leave these values as record of default settings,
+' ... and to modify to your preference using the Fire-Up! App
+
+'--- Settings ---
+Inch:
+	$x_park_in := 12          ' Initializes if not already set
+	$y_park_in := 16
+	$z_park_in := 1.5
+	GOTO Move_to_Position_INCH
+Metric:
+	$x_park_mm := 300
+	$y_park_mm := 400
+	$z_park_mm := 40
+	GOTO Move_to_Position_MM
+
+Move_to_Position_INCH:
+  JZ, $z_park_in
+  J2, $x_park_in, $y_park_in
+  END
+
+Move_to_Position_MM:
+  JZ, $z_park_mm
+  J2, $x_park_mm, $y_park_mm
+  END
