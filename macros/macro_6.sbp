@@ -1,6 +1,6 @@
-'!FABMO!name: Spindle On
+'!FABMO!name: Start Spindle
 '!FABMO!description: Turns spindle ON, SBP convention for managing tools
-' Name: Spindle On
+' Name: Start Spindle
 ' Description: Turns spindle ON, SBP convention for managing tools [C6]
 
 SO, 1, 1            ' Make OUTPUT #1 ACTIVE (high)

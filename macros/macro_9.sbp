@@ -1,7 +1,7 @@
 '!FABMO!name: Tool Change
-'!FABMO!description: Handles MTC from current posts and tracks tool #
+'!FABMO!description: Handles Manual Tool Change (MTC) from current posts and tracks tool# [C9]
 ' Name: Tool Change (temporary, simplified for manual tool change)
-' Description: Handles MTC from current posts and tracks tool #    [C9]
+' Description: Handles Manual Tool Change (MTC) from current posts and tracks tool# [C9]
 ' Platform: Handibot
 ' Author: Ted Hall, Ryan Sturmer
 ' History:

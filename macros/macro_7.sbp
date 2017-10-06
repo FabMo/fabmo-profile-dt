@@ -1,6 +1,6 @@
-'!FABMO!name: Spindle Off
+'!FABMO!name: Stop Spindle
 '!FABMO!description: Turns spindle OFF, SBP convention for managing tools
-' Name: Spindle Off
+' Name: Stop Spindle
 ' Description: Turns spindle OFF, SBP convention for managing tools [C7]
 
 SO, 1, 0            ' Make OUTPUT #1 INACTIVE (low)
