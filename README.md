@@ -1,2 +1,3 @@
 # fabmo-profile-dtmax
-FabMo machine profile for the desktop MAX product
+FabMo machine profile for the ShopBot Desktop (DT3).
+
