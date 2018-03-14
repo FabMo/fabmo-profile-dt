@@ -5,14 +5,12 @@
 ' Platform: SHOPBOT DT Tools
 ' Author: Ryan Sturmer, Ted Hall
 ' History:
-'   2017/08/01 - Initial version (rs)
-'   2017/9/15 - Refactored (th); use persistent offsets, manage z
+'  2017/08/01 - Initial version (rs)
+'  2017/9/15 - Refactored (th); use persistent offsets, manage z
 
 SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
 
 '--- Settings ---
-' Persistent Variables can ge managed from the Fire-Up App
-$current_cutter_Zoffset := .25               ' Initializes permanent variables if not already set
 $x_backoff := .25
 $y_backoff := .25 
 $z_backoff := .25
@@ -69,12 +67,12 @@ home_y:
 home_z:
 	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
 	JZ, %(3) - $z_backoff
-	VA,,,0,,,,,,0,,,                                      ' Set 0 location
-    &target_ck = 0.05 + $z_backoff                        ' Target just past prox
+	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
+    &target_ck = %(3) + 0.05 + $z_backoff                        ' Target just past prox
     PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(3) = &target_ck THEN GOSUB missed_target
     JZ, %(3) - $z_backoff
-	VA,,,0,,,,,,0,,,                                      ' Set 0 location
+	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
 	RETURN
 
 
@@ -82,7 +80,7 @@ offset_z_cutter:
    ' Comment (') out the PAUSE Line if you do not want the User Query about Z offset
    ' Or, comment out call to this subroutine if you NEVER want to include the cutter offset in your zeroing routine
     PAUSE "Click RESUME to Set Z to most recent Cutter Offset; QUIT to leave Z set at 0"
-    VA,,, $current_cutter_Zoffset
+	VA,,,,,,,,,$z_backoff,,,                                      ' Set 0 location
     RETURN
 
 go_home:

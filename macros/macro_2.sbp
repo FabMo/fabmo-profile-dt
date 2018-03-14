@@ -34,7 +34,6 @@ END
 
 ' --- Subroutines ---
 find_z_zero:    
-   GOSUB home_z        ' Need to make sure we also have Z 0 at top, now we're all set
    PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
    &zpos = %(3)
    PZ, &zpos + &ZZeroSearchDistance, &ZZeroSearchSpeedFast, $ZZeroInput
@@ -46,23 +45,8 @@ find_z_zero:
    ZZ
    JZ, $z_backoff 
    VA,,, $z_backoff + $ZZeroPlateThickness
-  ' Read in current System Variables for current Z and Z-tablebase-offset 
-	 &tempTB_Zoffset = %(8) 
-  ' Reset current_cutter and Set Table Base Coordinates and Location to 0 for Z
-     $current_cutter_Zoffset = &tempTB_Zoffset * -1
-   PAUSE "Z-ZEROED and Cutter Length Saved. Make sure to remove Z-Zero Plate and Clip!"
+   PAUSE "Z is Zeroed. Make sure to remove Z-Zero Plate and Clip!"
    RETURN
-
-home_z:
-	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
-	JZ, %(3) - $z_backoff
-	VA,,,0,,,,,,0,,,                                      ' Set 0 location
-    &target_ck = 0.05 + $z_backoff                        ' Target just past prox
-    PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
-    IF %(3) = &target_ck THEN GOSUB missed_target
-    JZ, %(3) - $z_backoff
-	VA,,,0,,,,,,0,,,                                      ' Set 0 location
-	RETURN
 
 missed_target:
     END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
