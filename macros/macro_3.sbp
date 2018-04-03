@@ -14,14 +14,14 @@ SU,0                   ' Set to Inches; Units will auto-revert to current starti
 $x_backoff := .25
 $y_backoff := .25 
 $z_backoff := .25
+$xy_search_speed:= 2.5
+$x_offset := 0.875
+$y_offset := 0.5
 
 &homing_input = 3      ' Input # for prox switch; ' Later also using system variable %(53) to read input; ... a temporary kludge
 &x_search = -26.0
-&x_search_speed = 2.5
-&x_slow_search_speed = .25
+&xy_slow_search_speed = .25
 &y_search = -20.0
-&y_search_speed = 2.5
-&y_slow_search_speed = .25
 &z_search = 8.0
 &z_search_speed = 1.5
 &z_slow_search_speed = .15
@@ -43,24 +43,24 @@ END
 
 ' --- Subroutines ---
 home_x:
-    PX, %(1) + &x_search, &x_search_speed, &homing_input  ' Search for prox switch
+    PX, %(1) + &x_search, $xy_search_speed, &homing_input  ' Search for prox switch
     JX, %(1) + $x_backoff
 	VA,0,,,,,,0,,,,,                                      ' Set 0 location
     &target_ck = (-1 * (0.05 + $x_backoff))               ' Target just past prox
-    PX, &target_ck, &x_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    PX, &target_ck, &xy_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(1) = &target_ck THEN GOSUB missed_target
-    JX, %(1) + $x_backoff
+    JX, %(1) + $x_offset
 	VA,0,,,,,,0,,,,,                                      ' Set 0 location
 	RETURN
 
 home_y:
-	PY, %(2) + &y_search, &y_search_speed, &homing_input  ' Search for prox switch
+	PY, %(2) + &y_search, $xy_search_speed, &homing_input  ' Search for prox switch
     JY, %(2) + $y_backoff
 	VA,,0,,,,,,0,,,,                                      ' Set 0 location
     &target_ck = (-1 * (0.05 + $y_backoff))               ' Target just past prox
-    PY, &target_ck, &y_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    PY, &target_ck, &xy_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(2) = &target_ck THEN GOSUB missed_target
-    JY, %(2) + $y_backoff
+    JY, %(2) + $y_offset
 	VA,,0,,,,,,0,,,,                                      ' Set 0 location
 	RETURN
 

@@ -15,6 +15,15 @@
     "safeZpullUp": 0.25,
     "safeApullUp": 0.25,
     "variables" : {
+        "x_offset": 0.875,
+        "y_offset": 0.5,
+        "xy_search_speed": 2.5,
+        "ZZeroPlateThickness": 0.118,
+        "ZZeroSearchSpeedFast": 0.5,
+        "tool_change_x":0,
+        "$tool_change_y": 0,
+        "tool_change_safe_z":1,
+        "tool_change_z": 2
     },
     "cRes": 0.01,
     "GblPropX": 1,

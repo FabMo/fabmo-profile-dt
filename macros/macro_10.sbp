@@ -1,0 +1,53 @@
+'!FABMO!name: Square Tool
+'!FABMO!description: Squares Deskop Tool
+' Name: Square Tool
+' Description: Squares Deskop Tool [C10]
+' Platform: Desktop
+' Author: Ted Hall, Ryan Sturmer, Brendan Collins
+' History: 2018/04/3 - created
+
+SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
+
+'--- Settings ---
+$z_backoff := .25
+$xy_search_speed := 2.5
+$tool_change_safe_z := 1
+
+&homing_input = 3      ' Input # for prox switch; 
+&y_search = 20.0
+&z_search = 8.0
+&z_search_speed = 1.5
+&small_move = 2  
+
+MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
+JS, 4, 4
+
+PAUSE "Are you sure you want to run this routine? This will run the gantry aginst the hard stops to square it. Y position WILL be lost"
+
+
+GOSUB clear_z
+GOSUB crash_y
+GOSUB run_C3
+END
+
+clear_z: 
+    PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
+    JZ, %(3) - $z_backoff
+    'VA,,,0,,,,,,0,,,  
+
+crash_y:
+	PY, %(2) + &y_search, $xy_search_speed, &homing_input  ' Search for prox switch
+	VA,,0,,,,,,0,,,,                                      ' Set 0 location
+    PAUSE 1
+    VR,2,,,,,,,,0.025
+    MY, &small_move				  'Move Y axis 2 inches past prox switch, which will crash it  
+    VA,,0,,,,,,0,,,,               ' Zero Y again so we know where we are at
+    PAUSE .5
+    VR,0.4,,,,,,,,0.15
+    MY, &small_move*-1
+    VA,,18,,,,,,0,,,,  	
+
+
+run_C3: 
+    PAUSE "Tool is squared. Do you want to run the homing routine now? Press RESUME to run"
+    C3

@@ -19,10 +19,11 @@ $ZZeroPlateThickness := 0.118 ' 0.118" for std plate; 0.57" for pressure plate
   ' To only use pressure plate, change &ZZeroInput to 5
   ' ... Adjust plate thickness to 0.57
   ' ... AND change %(51) to %(55) in check_input subroutine
+$ZZeroSearchSpeedFast = 0.5
 
 &ZZeroSearchDistance = -6.0 
 &ZZeroSearchSpeedSlow = 0.1
-&ZZeroSearchSpeedFast = 0.5
+
 
 MS, 4, 4					  ' Speeds will auto-revert back to current values at end of file
 JS, 5, 5

@@ -11,6 +11,7 @@ $current_tool := 0        ' Weakly initializes permanent tool variable if not al
                           ' &Tool will be passed in part file if appropriate post processor used
 $tool_change_x := 0
 $tool_change_y := 0
+$tool_changeZ :0
 $tool_change_safe_z := 1.0
 
 
@@ -21,7 +22,7 @@ $tool_change_safe_z := 1.0
   JZ,$tool_change_safe_z
   &xpos = %(1)
   &ypos = %(2)
-  J2,$tool_change_x,$tool_change_y
+  J3,$tool_change_x,$tool_change_y,$tool_changeZ
   PAUSE "Change to tool " + $current_tool
   SK
   'C2
