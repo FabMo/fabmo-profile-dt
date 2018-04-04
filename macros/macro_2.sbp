@@ -37,7 +37,7 @@ END
 find_z_zero:    
    PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
    &zpos = %(3)
-   PZ, &zpos + &ZZeroSearchDistance, &ZZeroSearchSpeedFast, $ZZeroInput
+   PZ, &zpos + &ZZeroSearchDistance, $ZZeroSearchSpeedFast, $ZZeroInput
    ZZ
    JZ, $z_backoff 
    ZZ
