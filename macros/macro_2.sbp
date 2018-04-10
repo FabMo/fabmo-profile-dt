@@ -13,7 +13,7 @@ SU, 0                         ' Set to Inches; Units will auto-revert to current
 
 '--- Settings ---             ' (Adjust permanent variables with Fire-Up! App)
 $current_cutter_Zoffset := .25' Initializes permanent variables if not already set
-$z_backoff := .25
+$z_backoff := .05
 $ZZeroInput := 1              ' Later also using system variable %(51) to read input; ... a temporary kludge
 $ZZeroPlateThickness := 0.118 ' 0.118" for std plate; 0.57" for pressure plate
   ' To only use pressure plate, change &ZZeroInput to 5
@@ -35,18 +35,11 @@ END
 
 ' --- Subroutines ---
 find_z_zero:    
-   PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
-   &zpos = %(3)
-   PZ, &zpos + &ZZeroSearchDistance, $ZZeroSearchSpeedFast, $ZZeroInput
-   ZZ
-   JZ, $z_backoff 
-   ZZ
-   &reapproach = -2 * $z_backoff 
-   PZ, &reapproach, &ZZeroSearchSpeedSlow, $ZZeroInput
-   ZZ
-   JZ, $z_backoff 
+   PZ, %(3) + &ZZeroSearchDistance, $ZZeroSearchSpeedFast, $ZZeroInput
+   JZ, %(3) + $z_backoff 
+   PZ, %(3) -2*$z_backoff, &ZZeroSearchSpeedSlow, $ZZeroInput
+   JZ, %(3) + $z_backoff 
    VA,,, $z_backoff + $ZZeroPlateThickness
-   PAUSE "Z is Zeroed. Make sure to remove Z-Zero Plate and Clip!"
    RETURN
 
 missed_target:
