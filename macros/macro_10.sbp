@@ -33,7 +33,7 @@ END
 clear_z: 
     PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
     JZ, %(3) - $z_backoff
-    'VA,,,0,,,,,,0,,,  
+
 
 crash_y:
 	PY, %(2) + &y_search, $xy_search_speed, &homing_input  ' Search for prox switch

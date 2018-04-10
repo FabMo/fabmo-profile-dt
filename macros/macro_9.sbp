@@ -11,7 +11,7 @@ $current_tool := 0        ' Weakly initializes permanent tool variable if not al
                           ' &Tool will be passed in part file if appropriate post processor used
 $tool_change_x := 0
 $tool_change_y := 0
-$tool_changeZ :0
+$tool_changeZ :=0
 $tool_change_safe_z := 1.0
 
 
