@@ -35,7 +35,7 @@ END
 
 ' --- Subroutines ---
 find_z_zero:    
-   PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
+
    &zpos = %(3)
    PZ, &zpos + &ZZeroSearchDistance, $ZZeroSearchSpeedFast, $ZZeroInput
    ZZ
@@ -46,7 +46,6 @@ find_z_zero:
    ZZ
    JZ, $z_backoff 
    VA,,, $z_backoff + $ZZeroPlateThickness
-   PAUSE "Z is Zeroed. Make sure to remove Z-Zero Plate and Clip!"
    RETURN
 
 missed_target:
