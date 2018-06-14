@@ -11,7 +11,6 @@
 SC,0
 
 ' Defaults
-&_seen_tool_change := 0
 &Tool := -1
 $current_tool := 0        
 $tool_change_x := 0
@@ -40,9 +39,7 @@ MTCRun:
     
     ' No need to execute the change if we're already carrying the right tool
     IF &Tool == $current_tool THEN GOTO DoneMTCRun
-    
-    IF &_seen_tool_change == 0 THEN GOTO MaybeSkipFirstToolChange
-    
+        
     ' If no &Tool was specified, that's an error
 	IF &Tool == -1 THEN GOTO NoToolError
     
@@ -113,12 +110,3 @@ NoToolError:
     
 NoChange:
   END
-
-MaybeSkipFirstToolChange:
-	&_seen_tool_change = 1
-	IF $mtc_skip_first_tool_change == 1 THEN GOTO SkipFirstToolChange
-    RETURN 
-    
-    SkipFirstToolChange:
-	$current_tool = &Tool
-    GOTO NoChange
