@@ -74,7 +74,7 @@ home_z:
 	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
 	JZ, %(3) - $z_backoff
 	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
-    &target_ck = 0.05 + $z_backoff                        ' Target just past prox
+    &target_ck = %(3) + $z_backoff + 0.05                        ' Target just past prox
     PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(3) = &target_ck THEN GOSUB missed_target
     JZ, %(3) - $z_backoff
