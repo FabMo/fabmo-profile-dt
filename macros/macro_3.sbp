@@ -104,7 +104,7 @@ backoff:
     RETURN
 
 missed_target:
-    END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
+    FAIL "Target Not Triggered!"                           ' Did not hit target.
 
 no_clear:
-    END "Proximity Switch Not Clear!"                     ' Could not clear. use FAILED type END
+    FAIL "Proximity Switch Not Clear!"                     ' Could not clear.

@@ -43,13 +43,11 @@ find_z_zero:
    RETURN
 
 missed_target:
-    END "Target Not Triggered!"                           
+    FAIL "Target Not Triggered!"                           
 
 check_input:
     IF %(51) = 1 THEN GOTO check_input_fail
 	RETURN
 
 check_input_fail:
-    END "An Input is already triggered. Cannot zero the tool. Move Off and Retry."
-
-END
+    FAIL "An Input is already triggered. Cannot zero the tool. Move Off and Retry."
