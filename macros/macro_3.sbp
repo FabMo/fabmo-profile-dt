@@ -17,6 +17,8 @@ $z_backoff := .25
 $xy_search_speed:= 2.5
 $x_offset := 0.875
 $y_offset := 0.5
+$home_position_x := 0   ' If you want to set an alternate home, you can do it here
+$home_position_y := 0
 
 &homing_input = 3      ' Input # for prox switch; ' Later also using system variable %(53) to read input; ... a temporary kludge
 &x_search = -26.0
@@ -25,8 +27,7 @@ $y_offset := 0.5
 &z_search = 8.0
 &z_search_speed = 1.5
 &z_slow_search_speed = .15
-&home_position_x = 0   ' If you want to set an alternate home, you can do it here
-&home_position_y = 0
+
 
 MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
 JS, 4, 4

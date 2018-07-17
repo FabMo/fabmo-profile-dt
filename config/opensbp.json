@@ -15,8 +15,8 @@
     "safeZpullUp": 0.25,
     "safeApullUp": 0.25,
     "variables" : {
-        "x_offset": 0.875,
-        "y_offset": 0.5,
+        "home_position_x": 0.875,
+        "home_position_y": 0.5,
         "xy_search_speed": 2.5,
         "ZZeroPlateThickness": 0.118,
         "ZZeroSearchSpeedFast": 0.5,
