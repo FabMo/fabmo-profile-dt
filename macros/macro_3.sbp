@@ -5,8 +5,8 @@
 ' Platform: SHOPBOT DT Tools
 ' Author: Ryan Sturmer, Ted Hall
 ' History:
-'  2017/08/01 - Initial version (rs)
-'  2017/9/15 - Refactored (th); use persistent offsets, manage z
+'   2017/08/01 - Initial version (rs)
+'   2017/9/15 - Refactored (th); use persistent offsets, manage z
 
 SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
 
@@ -14,20 +14,25 @@ SU,0                   ' Set to Inches; Units will auto-revert to current starti
 $x_backoff := .25
 $y_backoff := .25 
 $z_backoff := .25
-$xy_search_speed:= 2.5
-$x_offset := 0.875
-$y_offset := 0.5
-$home_position_x := 0   ' If you want to set an alternate home, you can do it here
+$home_position_x := 0
 $home_position_y := 0
+$xy_search_speed := 2.5
+$z_search_speed := 1.5
 
+'--- Locals ---
 &homing_input = 3      ' Input # for prox switch; ' Later also using system variable %(53) to read input; ... a temporary kludge
-&x_search = -26.0
-&xy_slow_search_speed = .25
-&y_search = -20.0
+&x_search = -38.0
+&x_slow_search_speed = .25
+&y_search = -26.0
+&y_slow_search_speed = .25
 &z_search = 8.0
-&z_search_speed = 1.5
 &z_slow_search_speed = .15
 
+
+
+SC,1
+&UserZ = %(3)	' Record the current location of the Z (used to restore offset later if enabled)
+SC,0
 
 MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
 JS, 4, 4
@@ -48,9 +53,9 @@ home_x:
     JX, %(1) + $x_backoff
 	VA,0,,,,,,0,,,,,                                      ' Set 0 location
     &target_ck = (-1 * (0.05 + $x_backoff))               ' Target just past prox
-    PX, &target_ck, &xy_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    PX, &target_ck, &x_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(1) = &target_ck THEN GOSUB missed_target
-    JX, %(1) + $x_offset
+    JX, %(1) + $x_backoff
 	VA,0,,,,,,0,,,,,                                      ' Set 0 location
 	RETURN
 
@@ -59,33 +64,33 @@ home_y:
     JY, %(2) + $y_backoff
 	VA,,0,,,,,,0,,,,                                      ' Set 0 location
     &target_ck = (-1 * (0.05 + $y_backoff))               ' Target just past prox
-    PY, &target_ck, &xy_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    PY, &target_ck, &y_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(2) = &target_ck THEN GOSUB missed_target
-    JY, %(2) + $y_offset
+    JY, %(2) + $y_backoff
 	VA,,0,,,,,,0,,,,                                      ' Set 0 location
 	RETURN
 
 home_z:
-	PZ, %(3) + &z_search, &z_search_speed, &homing_input  ' Search for prox switch
+	PZ, %(3) + &z_search, $z_search_speed, &homing_input  ' Search for prox switch
 	JZ, %(3) - $z_backoff
 	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
-    &target_ck = %(3) + 0.05 + $z_backoff                        ' Target just past prox
+    &target_ck = %(3) + $z_backoff + 0.05                        ' Target just past prox
     PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
     IF %(3) = &target_ck THEN GOSUB missed_target
     JZ, %(3) - $z_backoff
-	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
+    SC,1
+    &UserZProx = %(3)
+    SC,0
+    &CurrentZOffset = &UserZProx - &UserZ
+    VA,,,0,,,,,,0,,,                                      ' Set 0 location
 	RETURN
 
-
 offset_z_cutter:
-   ' Comment (') out the PAUSE Line if you do not want the User Query about Z offset
-   ' Or, comment out call to this subroutine if you NEVER want to include the cutter offset in your zeroing routine
-    PAUSE "Would you like to reset your Z-offset? (This may affect your current z-zero)"
-	VA,,,,,,,,,$z_backoff,,,                                      ' Set 0 location
+    VA,,,(&CurrentZOffset+&UserZ)
     RETURN
 
 go_home:
-	J2 &home_position_x, &home_position_y
+	J2 $home_position_x, $home_position_y
 	Z2                                                    ' Zero alternate home location (local zero)
     RETURN
 
@@ -99,7 +104,7 @@ backoff:
     RETURN
 
 missed_target:
-    END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
+    FAIL "Target Not Triggered!"                           ' Did not hit target.
 
 no_clear:
-    END "Proximity Switch Not Clear!"                     ' Could not clear. use FAILED type END
+    FAIL "Proximity Switch Not Clear!"                     ' Could not clear.

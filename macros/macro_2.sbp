@@ -11,15 +11,15 @@
 
 SU, 0                         ' Set to Inches; Units will auto-revert to current starting units at end of file
 
-'--- Settings ---             ' (Adjust permanent variables with Fire-Up! App)
+'--- Settings ---             
 $current_cutter_Zoffset := .25' Initializes permanent variables if not already set
-$z_backoff := .25
+$z_backoff := .05
 $ZZeroInput := 1              ' Later also using system variable %(51) to read input; ... a temporary kludge
 $ZZeroPlateThickness := 0.118 ' 0.118" for std plate; 0.57" for pressure plate
   ' To only use pressure plate, change &ZZeroInput to 5
-  ' ... Adjust plate thickness to 0.57
-  ' ... AND change %(51) to %(55) in check_input subroutine
-$ZZeroSearchSpeedFast = 0.5
+  ' ... adjust plate thickness to 0.57
+  ' ... and change %(51) to %(55) in check_input subroutine
+$z_search_speed := 0.5
 
 &ZZeroSearchDistance = -6.0 
 &ZZeroSearchSpeedSlow = 0.1
@@ -35,28 +35,19 @@ END
 
 ' --- Subroutines ---
 find_z_zero:    
-   PAUSE "Make Sure Aligator Clip Attached to Cutter Shank. -Resume- when Ready"
-   &zpos = %(3)
-   PZ, &zpos + &ZZeroSearchDistance, $ZZeroSearchSpeedFast, $ZZeroInput
-   ZZ
-   JZ, $z_backoff 
-   ZZ
-   &reapproach = -2 * $z_backoff 
-   PZ, &reapproach, &ZZeroSearchSpeedSlow, $ZZeroInput
-   ZZ
-   JZ, $z_backoff 
+   PZ, %(3) + &ZZeroSearchDistance, $z_search_speed, $ZZeroInput
+   JZ, %(3) + $z_backoff 
+   PZ, %(3) -2*$z_backoff, &ZZeroSearchSpeedSlow, $ZZeroInput
+   JZ, %(3) + $z_backoff 
    VA,,, $z_backoff + $ZZeroPlateThickness
-   PAUSE "Z is Zeroed. Make sure to remove Z-Zero Plate and Clip!"
    RETURN
 
 missed_target:
-    END "Target Not Triggered!"                           ' Did not hit target. use FAILED type END 
+    FAIL "Target Not Triggered!"                           
 
 check_input:
     IF %(51) = 1 THEN GOTO check_input_fail
 	RETURN
 
 check_input_fail:
-    END "An Input is already triggered. Cannot zero the tool. Move Off and Retry."
-
-END
+    FAIL "An Input is already triggered. Cannot zero the tool. Move Off and Retry."

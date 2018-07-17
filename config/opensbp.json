@@ -19,7 +19,7 @@
         "home_position_y": 0.5,
         "xy_search_speed": 2.5,
         "ZZeroPlateThickness": 0.118,
-        "ZZeroSearchSpeedFast": 0.5,
+        "z_search_speed": 0.5,
         "tool_change_x":0,
         "tool_change_y": 0,
         "tool_change_safe_z":1,
