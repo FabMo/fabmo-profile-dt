@@ -90,7 +90,7 @@ offset_z_cutter:
     RETURN
 
 go_home:
-	J2 $home_position_x, $home_position_y
+	J2 ($home_position_x - $x_backoff), ($home_position_y - $y_backoff)
 	Z2                                                    ' Zero alternate home location (local zero)
     RETURN
 
