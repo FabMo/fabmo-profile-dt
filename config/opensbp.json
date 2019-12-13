@@ -38,7 +38,7 @@
         "x_park_in": 12,
         "y_park_in": 16,
         "z_park_in": 1.5,
-        "current_tool": 6,
+        "current_tool": 1,
         "mtc_z_mode": "FIXED",
         "mtc_xy_mode": "FIXED",
         "mtc_zero_mode": "MACRO",
