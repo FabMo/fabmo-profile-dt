@@ -2,96 +2,101 @@
 '!FABMO!description: Automatically Set Axis Zero for XYZ
 ' Name: Home Tool
 ' Description: Automatically Set Axis Zero for XYZ [C3]
-' Platform: SHOPBOT DT Tools
+' Platform: ShopBot DT Tools
 ' Author: Ryan Sturmer, Ted Hall
 ' History:
 '   2017/08/01 - Initial version (rs)
-'   2017/9/15 - Refactored (th); use persistent offsets, manage z
+'   2017/09/15 - Refactored (th); use persistent offsets, manage z
+'   2019/10/25 - Refactored (th); small updates for DT FabMo release
 
 SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
 
-'--- Settings ---
+'--- Settings ---      ' Initializing permanent variables; ##:=## if not already set
 $x_backoff := .25
 $y_backoff := .25 
 $z_backoff := .25
 $home_position_x := 0
 $home_position_y := 0
-$xy_search_speed := 2.5
-$z_search_speed := 1.5
+$current_cutter_Zoffset := .25 ' ...just in case tool has never Z-Zeroed
+$dt_type := 3          ' 2=DTmax; 3=DT3
 
-'--- Locals ---
-&homing_input = 3      ' Input # for prox switch; ' Later also using system variable %(53) to read input; ... a temporary kludge
-&x_search = -38.0
-&x_slow_search_speed = .25
-&y_search = -26.0
-&y_slow_search_speed = .25
-&z_search = 8.0
+'--- Locals Variables ---
+&homing_input = 3      ' Input # for prox switch; all DT switches are in series on inp3
+&xy_search_speed = 2
+&z_search_speed = 1.5
+&xy_slow_search_speed = .15
 &z_slow_search_speed = .15
+&z_search = 8.0
+IF $dt_type = 3 then GOTO dt3
+    &x_search = -38.0
+    &y_search = -26.0
+    GOTO speeds_next
+dt3:
+    &x_search = -26.0
+    &y_search = -20.0
 
+speeds_next:
+    MS, 4, 4           ' Speeds used in this Macro, will auto-revert back to current values at end of file
+    JS, 5, 5
 
-
-SC,1
-&UserZ = %(3)	' Record the current location of the Z (used to restore offset later if enabled)
-SC,0
-
-MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
-JS, 4, 4
-
-' -------- Main Program Section --------
+' --- Main Program Section ---
+Z3
 GOSUB backoff_if_needed
 GOSUB home_z
 GOSUB home_x
 GOSUB home_y
 GOSUB go_home
-GOSUB offset_z_cutter                        ' Adds the offset for Z cutter; SEE COMMENTS IN SUBROUTINE
-
+GOSUB offset_z_cutter  ' Adds the offset for Z cutter; SEE COMMENTS IN SUBROUTINE
 END
 
 ' --- Subroutines ---
-home_x:
-    PX, %(1) + &x_search, $xy_search_speed, &homing_input  ' Search for prox switch
-    JX, %(1) + $x_backoff
-	VA,0,,,,,,0,,,,,                                      ' Set 0 location
-    &target_ck = (-1 * (0.05 + $x_backoff))               ' Target just past prox
-    PX, &target_ck, &x_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
-    IF %(1) = &target_ck THEN GOSUB missed_target
-    JX, %(1) + $x_backoff
-	VA,0,,,,,,0,,,,,                                      ' Set 0 location
-	RETURN
-
-home_y:
-	PY, %(2) + &y_search, $xy_search_speed, &homing_input  ' Search for prox switch
-    JY, %(2) + $y_backoff
-	VA,,0,,,,,,0,,,,                                      ' Set 0 location
-    &target_ck = (-1 * (0.05 + $y_backoff))               ' Target just past prox
-    PY, &target_ck, &y_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
-    IF %(2) = &target_ck THEN GOSUB missed_target
-    JY, %(2) + $y_backoff
-	VA,,0,,,,,,0,,,,                                      ' Set 0 location
-	RETURN
-
 home_z:
-	PZ, %(3) + &z_search, $z_search_speed, &homing_input  ' Search for prox switch
-	JZ, %(3) - $z_backoff
-	'VA,,,0,,,,,,0,,,                                      ' Set 0 location
-    &target_ck = %(3) + $z_backoff + 0.05                        ' Target just past prox
+	PZ, &z_search, &z_search_speed, &homing_input         ' PZ "probes" for a switch or contact in the Z axis
+    ZZ
+    JZ, (-1 * $z_backoff)
+    &target_ck = $z_backoff + 0.05                        ' Target just past prox
     PZ, &target_ck, &z_slow_search_speed, &homing_input   ' Slowly search for prox in accurate check
+    Pause .5
     IF %(3) = &target_ck THEN GOSUB missed_target
-    JZ, %(3) - $z_backoff
-    SC,1
-    &UserZProx = %(3)
-    SC,0
-    &CurrentZOffset = &UserZProx - &UserZ
+    ZZ
+    JZ, (-1 * $z_backoff)
     VA,,,0,,,,,,0,,,                                      ' Set 0 location
 	RETURN
 
 offset_z_cutter:
-    VA,,,(&CurrentZOffset+&UserZ)
+    Pause "Click RESUME to continue to set Z offset to last cutter measurement with ZZero"
+    VA,,,($current_cutter_Zoffset),,,,,,0,,
     RETURN
 
+home_x:
+    PX, &x_search, &xy_search_speed, &homing_input        
+    ZX
+    JX, $x_backoff
+    &target_ck = (-1 * (0.05 + $x_backoff))               
+    PX, &target_ck, &xy_slow_search_speed, &homing_input 
+    Pause .5
+    IF %(1) = &target_ck THEN GOSUB missed_target
+    ZX
+    JX, $x_backoff
+	VA,0,,,,,,0,,,,,                                     
+	RETURN
+
+home_y:
+	PY, &y_search, &xy_search_speed, &homing_input  
+    ZY
+    JY, $y_backoff
+    &target_ck = (-1 * (0.05 + $y_backoff))     
+    PY, &target_ck, &xy_slow_search_speed, &homing_input  
+    Pause .5
+    IF %(2) = &target_ck THEN GOSUB missed_target
+    ZY
+    JY, $y_backoff
+	VA,,0,,,,,,0,,,,                                     
+	RETURN
+
 go_home:
-	J2 ($home_position_x - $x_backoff), ($home_position_y - $y_backoff)
-	Z2                                                    ' Zero alternate home location (local zero)
+	J2, $home_position_x, $home_position_y
+	Z2                                                    ' Zero alternate home location if one defined (local zero)
     RETURN
 
 backoff_if_needed:
@@ -99,12 +104,12 @@ backoff_if_needed:
     IF %(53) = 1 THEN GOSUB no_clear
     RETURN
     
-backoff:
-    M3, %(1) + $x_backoff, %(2) + $y_backoff, %(3) - $z_backoff
+backoff:                                                  ' Make a 3-axis move to back off any of  switches
+    M3, $x_backoff, $y_backoff, (-1 * $z_backoff)
     RETURN
 
 missed_target:
-    FAIL "Target Not Triggered!"                           ' Did not hit target.
+    FAIL "Target Not Triggered!"                          ' Did not hit target.
 
 no_clear:
-    FAIL "Proximity Switch Not Clear!"                     ' Could not clear.
+    FAIL "Proximity Switch Not Clear!"                    ' Could not clear.
