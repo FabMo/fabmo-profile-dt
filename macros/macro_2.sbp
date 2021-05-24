@@ -10,6 +10,8 @@
 '**NOTE Developers: This Macro not yet handling proxType.
 
 '--- Adjust Standard Macro Variables to Current Tool Units if Needed ---
+&safeZ_pullup = %(28)
+
 &dist_mult = 1.0
 IF %(25) == 1 THEN GOTO tool_MM                      ' Read UNIT of Tool; System Variable #25
   tool_IN:
@@ -64,14 +66,14 @@ find_z_zero:                                                    ' Getting Offset
     Pause .5
     &target_ck = %(3)
     JZ, (&target_ck + ($sb_zPlateOff * &dist_mult))
-    &target_ck = $target_ck - &ooch 
-    PZ, &target_ck, &ZZero_slow_search_speed, $sb_zZeroNum
+    &target_ck = &target_ck - &ooch 
+    PZ, &target_ck, $sb_slowSearchSpeed_Z, $sb_zZeroNum
     Pause .5
     IF %(3) == &target_ck THEN GOSUB missed_target
     &target_ck = %(3)                                           ' Should now be accurate distance from Z zero 
     &target_ck = &target_ck * -1
     $current_cutter_Zoffset = &target_ck  + $sb_zPlateThick     ' RECORD: offset of this cutter
-    $current_cutter_Zoffset_Units := %(25)                      ' RECORD: units for offset of this cutter
+    $current_cutter_Zoffset_Units = %(25)                       ' RECORD: units for offset of this cutter
     JZ, ((-1 * $current_cutter_Zoffset) + &backOff_Dist + &safeZ_pullup) 
     VA,,, (&backOff_Dist + &safeZ_pullup)                       ' Only setting local Z, not TBC-Z
     RETURN

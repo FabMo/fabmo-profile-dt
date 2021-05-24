@@ -77,7 +77,7 @@ offset_z_cutter:
     RETURN
 
 home_x:
-    PX, ($sb_searchDist_X * &dist_mult), ($sb_slowSearchSpeed_XY * &dist_mult), $sb_proxNum_X        
+    PX, (-1 * $sb_searchDist_X * &dist_mult), ($sb_searchSpeed_XY * &dist_mult), $sb_proxNum_X        
     ZX
     JX, ($sb_homeOff_X * &dist_mult)
     &target_ck = (-1 * (($sb_homeOff_X * &dist_mult)+ &ooch))               
@@ -90,7 +90,7 @@ home_x:
 	RETURN
 
 home_y:
-	PY, ($sb_searchDist_Y * &dist_mult), ($sb_slowSearchSpeed_XY * &dist_mult), $sb_proxNum_Y  
+	PY, (-1 * $sb_searchDist_Y * &dist_mult), ($sb_searchSpeed_XY * &dist_mult), $sb_proxNum_Y  
     ZY
     JY, ($sb_homeOff_Y * &dist_mult)
     &target_ck = (-1 * (($sb_homeOff_Y * &dist_mult)+ &ooch))     

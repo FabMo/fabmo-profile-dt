@@ -36,7 +36,7 @@ $sb_varTableUNITS        = IN       '- (everywhere) IN;MM Table can be in INCHEs
 
 $sb_proxNum_X            = 3        '- (m3,?)  ... usually input 2 or 3; if using as system var; number = Input# + 50 
 $sb_proxNum_Y            = 3        '- (m3,?)  ... usually input 2 or 3
-$sb_proxNum_Z            = 5        '- (m2,m3,?) ... usually input 2 or 5
+$sb_proxNum_Z            = 3        '- (m2,m3,?) ... usually input 2 or 5
 '$sb_proxNum_A
 '$sb_proxNum_B
 '$sb_proxNum_C
