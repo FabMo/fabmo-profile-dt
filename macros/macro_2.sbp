@@ -10,10 +10,13 @@
 '**NOTE Developers: This Macro not yet handling proxType.
 
 '--- Adjust Standard Macro Variables to Current Tool Units if Needed ---
-&safeZ_pullup = %(28)
+
+&safeZ_pullup = %(28)									  ' Read safeZ-pullup from system variables
+'PAUSE .5
+VR,, 5000												  ' Hard code z jerk value; automatically restored at end of file
 
 &dist_mult = 1.0
-IF %(25) == 1 THEN GOTO tool_MM                      ' Read UNIT of Tool; System Variable #25
+IF %(25) == 1 THEN GOTO tool_MM   		                  ' Read UNIT of Tool; System Variable #25
   tool_IN:
     &ooch = 0.05                                          ' Set distance for slight target over-run in IN
     $current_cutter_Zoffset := .25                        ' Initialize variables in IN for case tool cutter not yet zeroed
@@ -44,6 +47,7 @@ GOSUB backOffProx_if_needed
 GOSUB check_plate
 GOSUB initial_home_z
 GOSUB find_z_zero
+PAUSE .5
 GOSUB finish
 END
 
@@ -74,8 +78,8 @@ find_z_zero:                                                    ' Getting Offset
     &target_ck = &target_ck * -1
     $current_cutter_Zoffset = &target_ck  + $sb_zPlateThick     ' RECORD: offset of this cutter
     $current_cutter_Zoffset_Units = %(25)                       ' RECORD: units for offset of this cutter
-    JZ, ((-1 * $current_cutter_Zoffset) + &backOff_Dist + &safeZ_pullup) 
-    VA,,, (&backOff_Dist + &safeZ_pullup)                       ' Only setting local Z, not TBC-Z
+    JZ, ((-1 * $current_cutter_Zoffset) + &safeZ_pullup) 
+    VA,,, (&safeZ_pullup)                    					' Only setting local Z, not TBC-Z
     RETURN
 
 backOffProx_if_needed:
@@ -88,7 +92,10 @@ backOffProx_z:
     RETURN    
 
 finish:
-    Pause "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $current_cutter_Zoffset
+	VR,,50														' Reduce high z jerk value
+	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish" acknowledgement
+    MZ, &safeZ_pullup
+	Pause "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $current_cutter_Zoffset
     RETURN
 
 missed_target:
