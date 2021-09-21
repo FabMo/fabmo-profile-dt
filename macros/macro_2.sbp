@@ -1,11 +1,10 @@
 '!FABMO!name: Z-Zero
 '!FABMO!description: Set Z-Zero with Zeroing Plate; after changing cutter
 '   2021/09/25 - Refactored (th)
-'   Standard Macro Variables are defined read from Macro #199 
-'   Note that tracking of current_cutter_Zoffset allows automaitc zeroing all three axis, even if re-powered
+'   Standard Macro Variables are read from Macro #199, only needs to happen once 
+'   Note that tracking of current_cutter_Zoffset allows automatic zeroing all three axis including Z, even if re-powered
 '   ... as long as cutter is not changed (or, if zeroed at material, material and cutter have not changed)
-'   Existing Move and Jog speeds are used for a few ancillary moves
-'   " := " Is SBP function to set variable if not previously defined 
+'**NOTE:   " := " Is an OpenSBP function to set variable but only if not previously defined 
 '**NOTE Developers: FabMo SBP currently not processing variable on right side of IF ... THEN; nor, variable in system var as  %(&var) 
 '**NOTE Developers: This Macro not yet handling proxType.
 
@@ -43,7 +42,7 @@ first_home_z_toProx:
 	RETURN
 
 find_z_zero_plate:                                              ' Now Offset to Zerol Plate for this cutter
-	&zPlate_hiJerk = 10000
+	VR,, &zPlate_hiJerk
 	PZ, (-1 * &searchDist_Z), &searchSpeed_Z, &zZeroNum   
     Pause .5
     &target_ck = %(3)
@@ -61,7 +60,7 @@ find_z_zero_plate:                                              ' Now Offset to 
     RETURN
 
 finish:
-	VR,,50														' Reduce high z jerk value
+	VR,,50														' Reduce high z jerk value for re-positioning
 	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish" acknowledgement
     MZ, &safeZ_pullup
 	Pause "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $current_cutter_Zoffset
