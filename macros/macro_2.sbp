@@ -15,10 +15,10 @@ IF $sb_standard_variables_PRESENT == 0 THEN GOTO no_variables
 
 ' === Main Program Sequence ===
 GOSUB initialize_variables
-ZZ    ' set current Z location to 0.00 as a starting point
+ZZ    ' Set current Z location to 0.00 as a working starting point
 PAUSE .5
-GOSUB check_prox_contact
-GOSUB check_plate_contact
+GOSUB backOffProx_if_needed
+GOSUB check_plate_clearance
 GOSUB first_home_z_toProx
 GOSUB find_z_zero_plate
 PAUSE .5
@@ -29,21 +29,19 @@ END
 
 ' --- Primary Subroutines ---
 first_home_z_toProx:
-'	VR,, &aggressive_jerk 
 	PZ, &searchDist_Z, &searchSpeed_Z, &proxNum_Z				' PZ "probes" for a switch or contact in the Z axis
-	ZZ
-    JZ, -1 * &homeOff_Z
+	ZZ															' Reset working zero
+    JZ, (-1 * &homeOff_Z)										' Pull back form prox	
 	&target_ck = &homeOff_Z + &ooch								' New target for detecting error just past prox
-    PZ, &target_ck, &slowSearchSpeed_Z, &proxNum_Z		        ' Slowly search for prox in accurate check
+    PZ, &target_ck, &slowSearchSpeed_Z, &proxNum_Z		        ' Slowly probe for prox in final accurate check
     PAUSE .5
     IF %(3) == &target_ck THEN GOSUB fail_missed_target			' Look at current Z location to see if we went past the target
     ZZ
-    JZ,  -1 * &homeOff_Z	
+    JZ, (-1 * &homeOff_Z)	
     VA,,,0,,,,,,0,,,                                            ' Set 0 location and Table Base Zero
 	RETURN
 
 find_z_zero_plate:                                              ' Now Offset to Zerol Plate for this cutter
-'	VR,, &zPlate_hiJerk
 	PZ, (-1 * &searchDist_Z), &searchSpeed_Z, &zZeroNum   
     Pause .5
     &target_ck = %(3)
@@ -54,21 +52,20 @@ find_z_zero_plate:                                              ' Now Offset to 
     IF %(3) == &target_ck THEN GOSUB fail_missed_target
     &target_ck = %(3)                                           ' Should now be accurate distance from Z zero 
     &target_ck = &target_ck * -1
-    $current_cutter_Zoffset = &target_ck + &zPlateThick     ' RECORD: offset of this cutter
+    $current_cutter_Zoffset = &target_ck + &zPlateThick			' RECORD: offset of this cutter
     $current_cutter_Zoffset_Units = %(25)                       ' RECORD: units for offset of this cutter
     JZ, ((-1 * $current_cutter_Zoffset) + &safeZ_pullup) 
     VA,,, (&safeZ_pullup)                    					' Only setting local Z, not TBC-Z
     RETURN
 
 finish:
-'	VR,,50														' Reduce high z jerk value
 	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish-wiggle" acknowledgement
     MZ, &safeZ_pullup
 	Pause "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $current_cutter_Zoffset
     RETURN
 
 ' --- Checks and Failures ---
-	check_prox_contact:
+	backOffProx_if_needed:
 	    IF %(&check_prox_Z) == 1 THEN GOSUB try_backOffProx_z
 	    RETURN
 	
@@ -77,7 +74,7 @@ finish:
 	    IF %(&check_prox_Z) == 1 THEN GOTO fail_on_prox
 	    RETURN    
 	
-	check_plate_contact:
+	check_plate_clearance:
 	    IF %(&zZeroCk) == 1 THEN GOTO fail_on_plate
 		RETURN
 	
@@ -109,27 +106,21 @@ initialize_variables:
     &dist_mult = 1.0
     IF %(25) == 1 THEN GOTO tool_MM   		                  ' Read UNIT of Tool; System Variable #25
       tool_IN:
-        &ooch = 0.05                                          ' Set distance for slight target over-run in IN
-'		&zPlate_hiJerk = 10000								  ' Temporary kludge for jerk until jerk-hi is functional
-'		&aggressive_jerk = 1000
 		$current_cutter_Zoffset := .25                        ' Initialize this variables in IN for case tool cutter not yet zeroed
         $current_cutter_Zoffset_Units := 0
         IF $sb_varTableUNITS == "IN" THEN GOTO continue_with_variables
         &dist_mult = 0.0393701                                ' Defined in MM: Multiplier to redefine distances from mm to inches 
         GOTO continue_with_variables
       tool_MM:
-        &ooch = 1.27                                          ' Set distance for slight target over-run
-'		&zPlate_hiJerk = 10000 * 25.4						  ' Temporary kludge for jerk until jerk-hi is functional
-'		&aggressive_jerk = 1000 * 25.4
         $current_cutter_Zoffset := 6.35                       ' Initialize this variable in MM for case tool cutter not zeroed
         $current_cutter_Zoffset_Units := 1
         IF $sb_varTableUNITS == "MM" THEN GOTO continue_with_variables
         &dist_mult = 25.4                                     ' Defined in IN: Multiplier to redefine distances from inches to mm 
         GOTO continue_with_variables
-
-  'continue adjusting for current units ...
+  'continue adjusting units for current working variables ...
 	continue_with_variables:
 		&target_ck = 0
+		&ooch = $sb_ooch * dist_mult
 		&backOff_dist = &ooch * 5
  		&searchDist_Z = $sb_searchDist_Z * &dist_mult
 		&searchSpeed_Z = $sb_searchSpeed_Z * &dist_mult

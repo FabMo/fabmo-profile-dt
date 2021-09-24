@@ -24,7 +24,7 @@
 '
 
 ' ----------------------------------------------------------------
-$sb_standard_variables_PRESENT = 1  '- flags this variables table has been read
+$sb_standard_variables_PRESENT = 1  '- flags that this variables table has been read
 $sb_varTableUNITS        = IN       '- (everywhere) IN;MM Table can be in INCHEs or MMs
                                     '-  but distance and speed values must be a consistent UNIT !!!
 
@@ -65,6 +65,7 @@ $sb_searchDist_Z         = 6        '- (m2,m3,?)
 '$sb_searchDist_A
 '$sb_searchDist_B
 '$sb_searchDist_C
+$sb_ooch                 = .05      '- distance used for pull backs and target adjustments, scaled to tool type
 
 $sb_zZeroNum             = 1        '- (m2,?) ... usually 1; if using as system var; number = Input# + 50
 $sb_zPlateOff            = 0.5      '- (m2) offset for move from plate distinguishing pull back from Zprox and ZeroPlate
