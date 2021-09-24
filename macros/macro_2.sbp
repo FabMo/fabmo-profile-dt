@@ -4,6 +4,7 @@
 '   Standard Macro Variables are read from Macro #199, only needs to happen once 
 '   Note that tracking of current_cutter_Zoffset allows automatic zeroing all three axis including Z, even if re-powered
 '   ... as long as cutter is not changed (or, if zeroed at material, material and cutter have not changed)
+'   Existing Move and Jog speeds are used for a few ancillary moves
 '**NOTE:   " := " Is an OpenSBP function to set variable but only if not previously defined 
 '**NOTE Developers: FabMo SBP currently not processing variable on right side of IF ... THEN; nor, variable in system var as  %(&var) 
 '**NOTE Developers: This Macro not yet handling proxType.
@@ -28,9 +29,9 @@ END
 
 ' --- Primary Subroutines ---
 first_home_z_toProx:
-	VR,, &aggressive_jerk 
+'	VR,, &aggressive_jerk 
 	PZ, &searchDist_Z, &searchSpeed_Z, &proxNum_Z				' PZ "probes" for a switch or contact in the Z axis
-    ZZ
+	ZZ
     JZ, -1 * &homeOff_Z
 	&target_ck = &homeOff_Z + &ooch								' New target for detecting error just past prox
     PZ, &target_ck, &slowSearchSpeed_Z, &proxNum_Z		        ' Slowly search for prox in accurate check
@@ -42,7 +43,7 @@ first_home_z_toProx:
 	RETURN
 
 find_z_zero_plate:                                              ' Now Offset to Zerol Plate for this cutter
-	VR,, &zPlate_hiJerk
+'	VR,, &zPlate_hiJerk
 	PZ, (-1 * &searchDist_Z), &searchSpeed_Z, &zZeroNum   
     Pause .5
     &target_ck = %(3)
@@ -60,8 +61,8 @@ find_z_zero_plate:                                              ' Now Offset to 
     RETURN
 
 finish:
-	VR,,50														' Reduce high z jerk value for re-positioning
-	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish" acknowledgement
+'	VR,,50														' Reduce high z jerk value
+	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish-wiggle" acknowledgement
     MZ, &safeZ_pullup
 	Pause "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $current_cutter_Zoffset
     RETURN
@@ -109,8 +110,8 @@ initialize_variables:
     IF %(25) == 1 THEN GOTO tool_MM   		                  ' Read UNIT of Tool; System Variable #25
       tool_IN:
         &ooch = 0.05                                          ' Set distance for slight target over-run in IN
-		&zPlate_hiJerk = 10000								  ' Temporary kludge for jerk until jerk-hi is functional
-		&aggressive_jerk = 1000
+'		&zPlate_hiJerk = 10000								  ' Temporary kludge for jerk until jerk-hi is functional
+'		&aggressive_jerk = 1000
 		$current_cutter_Zoffset := .25                        ' Initialize this variables in IN for case tool cutter not yet zeroed
         $current_cutter_Zoffset_Units := 0
         IF $sb_varTableUNITS == "IN" THEN GOTO continue_with_variables
@@ -118,8 +119,8 @@ initialize_variables:
         GOTO continue_with_variables
       tool_MM:
         &ooch = 1.27                                          ' Set distance for slight target over-run
-		&zPlate_hiJerk = 10000 * 25.4						  ' Temporary kludge for jerk until jerk-hi is functional
-		&aggressive_jerk = 1000 * 25.4
+'		&zPlate_hiJerk = 10000 * 25.4						  ' Temporary kludge for jerk until jerk-hi is functional
+'		&aggressive_jerk = 1000 * 25.4
         $current_cutter_Zoffset := 6.35                       ' Initialize this variable in MM for case tool cutter not zeroed
         $current_cutter_Zoffset_Units := 1
         IF $sb_varTableUNITS == "MM" THEN GOTO continue_with_variables
@@ -137,4 +138,4 @@ initialize_variables:
         &zPlateOff = $sb_zPlateOff * &dist_mult
         &zPlateThick = $sb_zPlateThick * &dist_mult
 
-RETURN 
+	RETURN 
