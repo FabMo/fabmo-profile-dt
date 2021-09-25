@@ -35,7 +35,7 @@ first_home_z_toProx:
 	&target_ck = &homeOff_Z + &ooch								' New target for detecting error just past prox
     PZ, &target_ck, &slowSearchSpeed_Z, &proxNum_Z		        ' Slowly probe for prox in final accurate check
     PAUSE .5
-    IF %(3) == &target_ck THEN GOSUB fail_missed_target			' Look at current Z location to see if we went past the target
+    IF %(3) == &target_ck THEN GOTO fail_missed_target			' Look at current Z location to see if we went past the target
     ZZ
     JZ, (-1 * &homeOff_Z)	
     VA,,,0,,,,,,0,,,                                            ' Set 0 location and Table Base Zero
@@ -49,7 +49,7 @@ find_z_zero_plate:                                              ' Now Offset to 
     &target_ck = &target_ck - &ooch 
     PZ, &target_ck, &slowSearchSpeed_Z, &zZeroNum
     Pause .5
-    IF %(3) == &target_ck THEN GOSUB fail_missed_target
+    IF %(3) == &target_ck THEN GOTO fail_missed_target
     &target_ck = %(3)                                           ' Should now be accurate distance from Z zero 
     &target_ck = &target_ck * -1
     $current_cutter_Zoffset = &target_ck + &zPlateThick			' RECORD: offset of this cutter
@@ -93,6 +93,7 @@ finish:
 	no_variables:
     	PAUSE "Macro #199 defining Standard Macro Variables does not seem to have been run. Quit and Run then try Macro again."
         END
+
 
 '--- Initialize Variables and Adjust Standard Macro Variables for Current Tool and Conditions as Needed
 initialize_variables:
