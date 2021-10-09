@@ -44,7 +44,7 @@ $sb_proxCk_Z = $sb_proxNum_Z + 50
 
 $sb_homeOff_X            = 0.5      '- (m2,m3) back off a prox to Home location 
 $sb_homeOff_Y            = 0.5      '- (m2,m3) back off a prox to Home location
-$sb_homeOff_Z            = 0.5      '- (m2,m3) back off a prox to Home location
+$sb_homeOff_Z            = 0.15     '- (m2,m3) back off a prox to Home location
 '$sb_homeOff_A
 '$sb_homeOff_B
 '$sb_homeOff_C
@@ -95,9 +95,16 @@ $sb_changePos_Z          = 1        '- (m9) for fixed location of a change; goin
 'sb_tool_change_safe_z
 'sb_tool_change_z
 
-'DO we need a separate home when using C3?
-$sb_home_X               = 0         '- (m3) this would be a parking offset from 0,0; only a value if doing it
-$sb_home_Y               = 0         '- (m3) this would be a parking offset from 0,0; only a value if doing it
+$sb_X_park               = 12
+$sb_Y_park               = 8
+$sb_Z_park               = 1.0
+'$sb_A_park
+'$sb_B_park
+'$sb_C_park
+
+'DO we need a separate special home?
+$sb_home_X               = 0         '- (m3) this would be a special offset from 0,0; only a value if using it
+$sb_home_Y               = 0         '- (m3) this would be a special offset from 0,0; only a value if using it
 
 
 '*** There will also be persistent variables used by macros that do not need to be pre-defined and are modified by in macro use:

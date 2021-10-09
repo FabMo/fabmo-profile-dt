@@ -1,6 +1,7 @@
 '!FABMO!name: Home Tool
 '!FABMO!description: Automatically Set Axis Zero for XYZ
-'   Standard Macro Variables are read from Macro #199, only needs to happen once 
+'   Standard Macro Variables are read from Macro #201, only needs to happen once 
+'   2021/09/25 - Refactored (th)
 '   Note that tracking of current_cutter_Zoffset allows automatic zeroing all three axis including Z, even if re-powered
 '   ... as long as cutter is not changed (or, if zeroed at material, material and cutter have not changed)
 '   Existing Move and Jog speeds are used for a few ancillary moves
@@ -19,12 +20,11 @@ IF $sb_standard_variables_PRESENT == 0 THEN GOTO no_variables
 GOSUB initialize_variables
 ' --- Main Program Sequence ---
 Z3    ' zeoring all axes at their current location (sets worst case homing distances)l  ##TABLE BASE?
-PAUSE .5
+GOSUB moveOutFromProx
 GOSUB backOffProx_if_needed
 GOSUB home_z
 GOSUB home_x
 GOSUB home_y
-PAUSE .5
 GOSUB offset_z_cutter  ' Adds the offset for Z cutter; ONLY USEFUL if CUTTER and MATERIAL HAVE NOT BEEN CHANGED
 END
 '==============================
@@ -38,7 +38,7 @@ home_z:
     &target_ck = &homeOff_Z + &ooch								' New target for detecting error just past prox
     PZ, &target_ck, &slowSearchSpeed_Z, &proxNum_Z				' Slowly probe for prox in final accurate check
 	PAUSE .5
-    IF %(3) == &target_ck THEN GOTO fail_missed_target			' Look at current Z location to see if we went past the target
+    IF %(3) == &target_ck THEN GOSUB fail_missed_target			' Look at current Z location to see if we went past the target
     ZZ
     JZ, (-1 * &homeOff_Z)
     VA,,,0,,,,,,0,,,                                            ' Set 0 location and Table Base Zero
@@ -51,7 +51,7 @@ home_x:
     &target_ck = (-1 * (&homeOff_X + &ooch))					' New target for detecting error just past prox
     PX, &target_ck, &slowSearchSpeed_XY, &proxNum_X				' Slowly probe for prox in final accurate check
     PAUSE .5
-    IF %(1) == &target_ck THEN GOTO fail_missed_target			' Look at current Z location to see if we went past the target
+    IF %(1) == &target_ck THEN GOSUB fail_missed_target			' Look at current Z location to see if we went past the target
     ZX
     JX, &homeOff_X
 	VA,0,,,,,,0,,,,,											' Set 0 location and Table Base Zero                                   
@@ -77,40 +77,43 @@ offset_z_cutter:
 
 
 ' --- Checks and Failures ---
-	backOffProx_if_needed:                                          ' Managing prox switches is complicated by multiple arrangements
-	    &proxTriggered = 0
-	    GOSUB checkProxs
-	    IF &proxTriggered == 1 THEN GOSUB handleBackOff
-	    &proxTriggered = 0
-		GOSUB checkProxs
-	    IF &proxTriggered == 1 THEN GOTO fail_no_clear
-		RETURN
-	
-	checkProxs:
-		IF %(&check_prox_Z) == 1 THEN GOSUB onProx
-	    IF %(&check_prox_X) == 1 THEN GOSUB onProx
-	    IF %(&check_prox_Y) == 1 THEN GOSUB onProx
-	    RETURN
-	onProx:
-	    &proxTriggered = 1
-		RETURN
-	
-	handleBackOff:
-		M3, &backOff_Dist, &backOff_Dist, -1 * &backOff_Dist
-	    RETURN    
-	
-	fail_no_clear:
-	    PAUSE "Proximity Switch Not Clear! (A switch is stuck on.)" ' Could not clear.
-	    END
-	
-	fail_missed_target:
-		PAUSE "Target Not Triggered! Center and Try C3 again."      ' Did not hit target.
-	    END
-	
-	no_variables:
-	   	PAUSE "Macro #199 defining Standard Macro Variables does not seem to have been run. Quit and Run then try Macro again."
-	    END
-	
+  moveOutFromProx:
+  	  M2, (%(1) + (2 * &homeOff_X)), (%(2) + (2 * &homeOff_Y))	' To avoid being stuck behind prox, move XY out 3X offset from location	
+      RETURN
+      
+  backOffProx_if_needed:                                        ' Managing prox switches is complicated by multiple arrangements
+      &proxTriggered = 0
+      GOSUB checkProxs
+      IF &proxTriggered == 1 THEN GOSUB handleBackOff
+      &proxTriggered = 0
+      GOSUB checkProxs
+      IF &proxTriggered == 1 THEN GOTO fail_no_clear
+      RETURN
+
+  checkProxs:
+      IF %(&check_prox_Z) == 1 THEN GOSUB onProx
+      IF %(&check_prox_X) == 1 THEN GOSUB onProx
+      IF %(&check_prox_Y) == 1 THEN GOSUB onProx
+      RETURN
+  onProx:
+      &proxTriggered = 1
+      RETURN
+
+  handleBackOff:
+      M3, &backOff_Dist, &backOff_Dist, -1 * &backOff_Dist
+      RETURN    
+
+  fail_no_clear:
+      PAUSE "Proximity Switch Not Clear! (A switch is stuck on.)" ' Could not clear.
+      END
+
+  fail_missed_target:
+      PAUSE "Target Not Triggered! Center and Try C3 again."      ' Did not hit target.
+      END
+
+  no_variables:
+      PAUSE "Macro #199 defining Standard Macro Variables does not seem to have been run. Quit and Run then try Macro again."
+      END
 
 '--- Initialize Variables and Adjust Standard Macro Variables for Current Tool and Conditions as Needed
 initialize_variables:
@@ -151,8 +154,8 @@ initialize_variables:
  		&searchDist_Z = $sb_searchDist_Z * &dist_mult
 		&searchSpeed_Z = $sb_searchSpeed_Z * &dist_mult
 		&slowSearchSpeed_Z = $sb_slowSearchSpeed_Z * &dist_mult
-		&searcDist_X = $sb_searchDist_X * &dist_mult
-		&searcDist_Y = $sb_searchDist_Y * &dist_mult
+		&searchDist_X = $sb_searchDist_X * &dist_mult
+		&searchDist_Y = $sb_searchDist_Y * &dist_mult
 		&searchSpeed_XY = $sb_searchSpeed_XY * &dist_mult
 		&slowSearchSpeed_XY = $sb_slowSearchSpeed_XY * &dist_mult
 		&homeOff_Z = $sb_homeOff_Z * &dist_mult

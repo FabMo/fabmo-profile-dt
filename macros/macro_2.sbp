@@ -1,7 +1,7 @@
 '!FABMO!name: Z-Zero
 '!FABMO!description: Set Z-Zero with Zeroing Plate; after changing cutter
 '   2021/09/25 - Refactored (th)
-'   Standard Macro Variables are read from Macro #199, only needs to happen once 
+'   Standard Macro Variables are read from Macro #201, only needs to happen once 
 '   Note that tracking of current_cutter_Zoffset allows automatic zeroing all three axis including Z, even if re-powered
 '   ... as long as cutter is not changed (or, if zeroed at material, material and cutter have not changed)
 '   Existing Move and Jog speeds are used for a few ancillary moves

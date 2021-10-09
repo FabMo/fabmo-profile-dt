@@ -7,10 +7,10 @@
 ' History:
 '   2017/09/13 - Refactored (th)
 '   2018/06/07 - Expanded to support desktop preferences (rs)
-'   2018/06/29 - Minor bugfixes - add support for FAIL command (rs)
-'   2019/11/10 - Refactored for latest FabMo (th)
+'   2018/06/29 - Minor bugfixes - add support for FAIL command (rs) NOTE: now broken
+'   2021/09/25 - Refactored for latest FabMo (th)
 
-'--- Settings ---      ' Initializing permanent variables; ##:=## if not already set
+'--- Settings ---      ' Initializing permanent variables; ##:=## if NOT ALREADY SET
 $current_tool := 0        
 $tool_change_x := 4
 $tool_change_y := 4
@@ -24,21 +24,23 @@ $mtc_skip_first_tool_change := 0
 '--- Local Variables ---
 &Tool := -1
 
-'--- Main Program ---
+'=== Main Program ===
 IF $mtc_mode == "IGNORE" THEN GOSUB MTCIgnore
 IF $mtc_mode == "MTC" THEN GOSUB MTCRun
 IF $mtc_mode == "QUIT" THEN GOSUB MTCQuit
-
 END
+'====================
 
-'--- Subroutines ---
+'--- Primary Subroutines ---
 MTCIgnore:
-    ' This option is dedicated to Bill Young - just pretend like we didn't even see this tool change.
+    ' This option is dedicated to Bill Young - just pretend like we didn't even see this tool change function.
     RETURN
 
 MTCQuit:
-    FAIL "A tool change has been encountered.  The file will now quit.  You can change this behavior in the desktop preferences."
-
+    'FAIL "A tool change has been encountered.  The file will now quit.  You can change this behavior in the desktop preferences."
+    PAUSE "A tool change has been encountered.  The file will now quit.  You can change this behavior in the desktop preferences."
+	END
+    
 MTCRun:
     
     ' No need to execute the change if we're already carrying the right tool
@@ -71,9 +73,9 @@ MTCRun:
     if $mtc_z_mode == "FIXED" THEN GOSUB GotoFixedZ
 
     ' Return to the XY position we started from
-    J2,&xpos,&ypos
+    J2, &xpos, &ypos
     
-    ' Set the current tool to the tool requested  (assume if we got this far that the tool change was made successfully)
+    ' Set the current tool to the tool requested (assume if we got this far that the tool change was made successfully)
     $current_tool = &Tool
     
     ' Spindle back on
@@ -82,7 +84,7 @@ MTCRun:
     DoneMTCRun:
     RETURN
     
-' --- Subroutines ---
+' --- Secondary Subroutines ---
 
 GotoMaxZ:
     JZ, (-1 * $current_cutter_Zoffset)
@@ -97,22 +99,20 @@ GotoFixedXY:
     RETURN
     
 ZZeroWithMacro:
-    'SC,1
     SK, "Change to tool " + &Tool + " and position the it above the Z-Zero plate"
     C2
     PAUSE "Press resume to continue with this tool, or quit to exit."
-    'SC,0
     RETURN
 
 ZZeroWithDRO:
-    'SC,1
     SK, "Change to tool " + &Tool + " and set the the zero position of the new tool."
-    'SC,0
     C78  ' Set Current Z offset
     RETURN
 
 NoToolError:
-    FAIL "A tool change was encountered, but no tool was specified."
+    'FAIL "A tool change was encountered, but no tool was specified."
+    PAUSE "A tool change was encountered, but no tool was specified."
+    END
     
 NoChange:
     END

@@ -1,7 +1,7 @@
 '!FABMO!name: Park
-'!FABMO!description: Move Tool to Parking Location 
+'!FABMO!description: Move Tool to a Parking Location 
 ' Name: Park
-' Description: Move Tool to Parking Location (typically to back)
+' Description: Move Tool to a Parking Location (typically to back)
 ' Platform: Desktop
 ' Author: Ted Hall, Ryan Sturmer
 ' History:
@@ -16,13 +16,13 @@ END
 '--- Settings ---      ' Initializing permanent variables; ##:=## if not already set
 Inch:
 	$x_park_in := 12          ' These initializes if not already set, but do not alter pre-existing settings
-	$y_park_in := 16
-	$z_park_in := 1.5
+	$y_park_in := 8
+	$z_park_in := 1
 	GOTO Move_to_Position_INCH
 Metric:
 	$x_park_mm := 300
-	$y_park_mm := 400
-	$z_park_mm := 40
+	$y_park_mm := 200
+	$z_park_mm := 30
 	GOTO Move_to_Position_MM
 
 '--- Subroutines ---

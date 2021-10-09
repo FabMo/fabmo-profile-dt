@@ -5,7 +5,7 @@
 ' Platform: Desktop
 ' Author: Ryan Sturmer, Brendan Collins
 ' History: 2018/04/3 - created
-' 2019/10/25 refactored (th)
+' 2021/09/25 refactored (th)
 
 SU,0                   ' Set to Inches; Units will auto-revert to current starting units at end of file
 
@@ -24,29 +24,26 @@ $dt_type := 3          ' 2=DTmax; 3=DT3
 MS, 2, 2               ' Speeds will auto-revert back to current values at end of file
 JS, 4, 4
 
-'--- Main Program ---
-PAUSE "This routine will Square Gantry by pushing it into End Stops (loudly). Resume to Continue."
-
-Z3
-GOSUB clear_z
-IF $dt_type = 3 then GOTO dt3
-    &x_search = 38.0
-	GOSUB square_x_gantry
-	GOTO now_home_tool
-dt3:
-    &y_search = 20.0
-    GOSUB square_y_gantry
-    
-now_home_tool:
-	GOSUB run_C3
-
-END
+'=== Main Program ===
+  PAUSE "This routine will Square Gantry by pushing it into End Stops (loudly). Resume to Continue."
+  Z3
+  GOSUB clear_z
+  IF $dt_type = 3 then GOTO dt3
+      &x_search = 38.0
+	  GOSUB square_x_gantry
+	  GOTO now_home_tool
+  dt3:
+      &y_search = 20.0
+      GOSUB square_y_gantry
+   now_home_tool:
+	  GOSUB run_C3
+  END
+'====================
 
 '--- 'Subroutines ---
 clear_z: 
     PZ, &z_search, &z_search_speed, &homing_input          ' Search for prox switch
     Pause .5
-    'VR, 150
     JZ, %(3) - $z_backoff
     RETURN
 
@@ -78,6 +75,6 @@ square_x_gantry:
 
 run_C3: 
     PAUSE "Tool is squared.You should run the Homing Macro now? Press RESUME to Run; QUIT to Skip."
-    C3
-
-END
+  ' * MAYBE Jog the squared axis back near zero in above routines ???
+	C3
+	RETURN
