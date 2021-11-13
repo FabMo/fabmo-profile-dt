@@ -16,7 +16,7 @@
 $sb_standard_variables_PRESENT := 0								  ' Define test variable if it does not exist
 IF $sb_standard_variables_PRESENT == 0 THEN GOTO no_variables
 
-' === Main Program Sequence ===
+' === Main Program ===
 GOSUB initialize_variables
 ' --- Main Program Sequence ---
 Z3    ' zeoring all axes at their current location (sets worst case homing distances)l  ##TABLE BASE?
@@ -28,7 +28,6 @@ GOSUB home_y
 GOSUB offset_z_cutter  ' Adds the offset for Z cutter; ONLY USEFUL if CUTTER and MATERIAL HAVE NOT BEEN CHANGED
 END
 '==============================
-
 
 ' --- Primary Subroutines ---                                      
 home_z:
@@ -72,13 +71,13 @@ home_y:
 
 offset_z_cutter:
     PAUSE "Click RESUME to set Z offset to last ZZero cutter measurement; QUIT leaves Z set at Top"
-    VA,,,($current_cutter_Zoffset * &Zoff_mult),,,,,,0,,        ' Set 0 based on previous cutter ZZero
+    VA,,,($sb_current_cutter_Zoffset * &Zoff_mult),,,,,,0,,     ' Set 0 based on previous cutter ZZero
     RETURN
 
 
 ' --- Checks and Failures ---
   moveOutFromProx:
-  	  M2, (%(1) + (2 * &homeOff_X)), (%(2) + (2 * &homeOff_Y))	' To avoid being stuck behind prox, move XY out 3X offset from location	
+  	  M2, (2 * &homeOff_X), (2 * &homeOff_Y)					' To avoid being stuck behind prox, move XY out 3X offset from location	
       RETURN
       
   backOffProx_if_needed:                                        ' Managing prox switches is complicated by multiple arrangements
@@ -112,7 +111,7 @@ offset_z_cutter:
       END
 
   no_variables:
-      PAUSE "Macro #199 defining Standard Macro Variables does not seem to have been run. Quit and Run then try Macro again."
+      PAUSE "Macro #201 defining Standard Macro Variables does not seem to have been run. Quit and Run then try Macro again."
       END
 
 '--- Initialize Variables and Adjust Standard Macro Variables for Current Tool and Conditions as Needed
@@ -129,18 +128,18 @@ initialize_variables:
 	&Zoff_mult = 1.0
 	IF %(25) == 1 THEN GOTO tool_MM							  ' Read UNIT of Tool; System Variable #25
 	  tool_IN:
-	    $current_cutter_Zoffset := .25                        ' Initialize variable in IN for case tool cutter not zeroed
-		$current_cutter_Zoffset_Units := 0
-		IF $current_cutter_Zoffset_Units == 0 THEN GOTO ok_IN
+	    $sb_current_cutter_Zoffset := .25                     ' Initialize variable in IN for case tool cutter not zeroed
+		$sb_current_cutter_Zoffset_Units := 0
+		IF $sb_current_cutter_Zoffset_Units == 0 THEN GOTO ok_IN
 		  &Zoff_mult = 0.0393701
 		ok_IN:
 	    IF $sb_varTableUNITS == "IN" THEN GOTO continue_with_variables
 		&dist_mult = 0.0393701                                ' Defined in MM: Multiplier to redefine distances from mm to inches 
 	    GOTO continue_with_variables
 	  tool_MM:
-	    $current_cutter_Zoffset := 6.35                       ' Initialize variable in MM for case tool cutter not zeroed
-		$current_cutter_Zoffset_Units := 1
-		IF $current_cutter_Zoffset_Units == 1 THEN GOTO ok_MM
+	    $sb_current_cutter_Zoffset := 6.35                    ' Initialize variable in MM for case tool cutter not zeroed
+		$sb_current_cutter_Zoffset_Units := 1
+		IF $sb_current_cutter_Zoffset_Units == 1 THEN GOTO ok_MM
 		  &Zoff_mult = 25.4
 		ok_MM:
 	    IF $sb_varTableUNITS == "MM" THEN GOTO continue_with_variables

@@ -16,11 +16,11 @@ There are a couple of new things that would be good to achieve:
     including if cutter offset is measured in a different unit system
 
 To help with interchangeability we employ a set of standard variables whose values are
-then set or each tool. This is set up in Macro #199.
+then set or each tool. This is set up in Macro #201.
 
 I am expecting that we will add to the system for standard variables as time goes by, but I've tried to cover all the ones for low-number Macros in this first batch.
 
-Checkout these new standard variable definitions are in Macro #199.
+Checkout these new standard variable definitions are in Macro #201.
 
 We need to call this macro once, just after any new profile is installed.
 
