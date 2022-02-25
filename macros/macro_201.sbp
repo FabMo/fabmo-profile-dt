@@ -15,6 +15,15 @@
 '- THE UNIT SYSTEM allows using either INCH values or MM values and these are handled in Macros no matter
 '    the current UNIT TYPE of the tool.
 '
+'Standard Macro File Format:  (for all relatively complex macros, to give a similar flow)
+'        - Main Program Sequence :: called with GOSUBs
+'        - Primary Subroutines
+'              = Major subs
+'              = Error checks and handling
+'              = initialize_variables:
+'                     * makes a local version of the standard variable to prevent corruption
+'                     * handles conversion to tool measurment mode based on unit of variable 
+'
 'Shipping:
 '- Only ship a tool with one profile -- it's own appropriate profile (installed at the final test of tool)! 
 '* - FUTURE: Default profile not offered as an option and will be used only if no profile present.
