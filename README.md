@@ -15,10 +15,3 @@ There are a couple of new things that would be good to achieve:
 To help with interchangeability we employ a set of "Standard Variables" whose "Values" are
 set or each tool. This is set up in Macro #201.
 
-I am expecting that we will add to the system for Standard Variables as time goes by, but I've tried to cover all the ones for low-number Macros in this first batch.
-
-Checkout these new Standard Variable definitions are in Macro #201.
-
-We need to call this Macro#201 once, just after any new profile is installed. When the tool is tested
-before shipping is an appropriate time.
-
