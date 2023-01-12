@@ -58,8 +58,6 @@ find_z_zero_plate:                                              ' Now Offset to 
     RETURN
 
 finish:
-	MZ, &safeZ_pullup - .05										' Trigger location update with a little "finish-wiggle" acknowledgement
-    MZ, &safeZ_pullup
 	PAUSE "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $sb_current_cutter_Zoffset
     RETURN
 
