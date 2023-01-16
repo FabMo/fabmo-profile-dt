@@ -21,7 +21,6 @@ GOSUB backOffProx_if_needed
 GOSUB check_plate_clearance
 GOSUB first_home_z_toProx
 GOSUB find_z_zero_plate
-PAUSE .5
 GOSUB finish
 END
 '==============================
