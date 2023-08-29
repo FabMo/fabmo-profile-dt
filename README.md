@@ -2,7 +2,7 @@
 FabMo machine profile for the ShopBot Desktop (DT3).
 
 # macros - NOTES for ShopBot Dev Team
-This is an updated version of FabMo Macros for "FabMo DT Release 2022".
+This is an updated version of FabMo Macros for "FabMo DT Release 2023".
 These will be similar to the previous Sb3 Macro system ... but standardized. Generally, all tools will
 use the same macros. The format for standard macros is described in Macro #201. 
 
