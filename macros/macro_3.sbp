@@ -1,5 +1,6 @@
 '!FABMO!name: Home Tool
 '!FABMO!description: Automatically Set Axis Zero for XYZ and position tool
+'!FABMO!enabled:true
 '   Standard Macro Variables are read from Macro #201, only needs to happen once 
 '   2021/09/25 - Refactored (th)
 '   Note that tracking of current_cutter_Zoffset allows automatic zeroing all three axis including Z, even if re-powered
@@ -123,7 +124,7 @@ initialize_variables:
 	  tool_IN:
 	    $sb_current_cutter_Zoffset := .25                     ' Initialize variable in IN for case tool cutter not zeroed
 		$sb_current_cutter_Zoffset_Units := 0
-		IF $sb_current_cutter_Zoffset_Units == 0 THEN GOTO ok_IN
+		IF $sb_current_cutter_Zoffset_Units == "IN" THEN GOTO ok_IN
 		  &Zoff_mult = 0.0393701
 		ok_IN:
 	    IF $sb_varTableUNITS == "IN" THEN GOTO continue_with_variables
@@ -132,7 +133,7 @@ initialize_variables:
 	  tool_MM:
 	    $sb_current_cutter_Zoffset := 6.35                    ' Initialize variable in MM for case tool cutter not zeroed
 		$sb_current_cutter_Zoffset_Units := 1
-		IF $sb_current_cutter_Zoffset_Units == 1 THEN GOTO ok_MM
+		IF $sb_current_cutter_Zoffset_Units == "MM" THEN GOTO ok_MM
 		  &Zoff_mult = 25.4
 		ok_MM:
 	    IF $sb_varTableUNITS == "MM" THEN GOTO continue_with_variables
