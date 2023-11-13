@@ -16,6 +16,7 @@ IF $sb_standard_variables_PRESENT == 0 THEN GOSUB no_variables
 
 ' === Main Program ===
 GOSUB initialize_variables
+&last_cutter_offset = $sb_current_cutter_Zoffset
 ZZ    ' Set current Z location to 0.00 as a working starting point
 GOSUB backOffProx_if_needed
 GOSUB check_plate_clearance
@@ -59,7 +60,7 @@ find_z_zero_plate:                                              ' Now Offset to 
     RETURN
 
 finish:
-	PAUSE "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $sb_current_cutter_Zoffset
+	PAUSE "Remember to Remove Clip! The following value will be used for Cutter Offset in Homing:  " + $sb_current_cutter_Zoffset + "(vs " + &last_cutter_offset +")"
     RETURN
 
 ' --- Checks and Failures ---
