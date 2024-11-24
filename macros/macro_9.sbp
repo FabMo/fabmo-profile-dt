@@ -1,5 +1,6 @@
 '!FABMO!name: Tool Change
-'!FABMO!description: Handles Manual Tool Change -- MTC (settings in #201)
+'!FABMO!description: Handles Manual Tool Change -- MTC (settings in #201
+'!FABMO!enabled:true
 ' Name: Manual Tool Change
 ' Description: Handles Manual Tool Change (MTC) from current Vectric posts and tracks tool# [C9]
 ' Platform: Desktop/Desktop MAX
@@ -14,13 +15,17 @@
 '--- Check to make sure Standard Macro Variables have been read
 $sb_standard_variables_PRESENT := 0								  ' Define test variable if it does not exist
 IF $sb_standard_variables_PRESENT == 0 THEN GOSUB no_variables
-
+IF $ATC.Type = 0 THEN GOTO MANUAL_CHANGE
+C71
+GOTO END_CHANGE
 ' === Main Program ===
+MANUAL_CHANGE:
 GOSUB initialize_variables
 IF &mtc_skip_first_tool_change == "YES" THEN GOSUB MTCSkip
 IF &mtc_mode == "IGNORE" THEN GOSUB MTCIgnore
 IF &mtc_mode == "MTC" THEN GOSUB MTCRun
 IF &mtc_mode == "QUIT" THEN GOSUB MTCQuit
+END_CHANGE:
 END
 '====================
 

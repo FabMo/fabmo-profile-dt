@@ -16,6 +16,17 @@
 '--- Check to make sure Standard Macro Variables have been read
 $sb_standard_variables_PRESENT := 0								  ' Define test variable if it does not exist
 IF $sb_standard_variables_PRESENT == 0 THEN GOSUB no_variables
+' === ATC Status Checks ===
+C70
+IF $ATC.Type == 0 THEN GOTO OK
+C75
+IF $ATC.Status = "OK" THEN GOTO OK
+IF $ATC.Status = "TOOL NOT FOUND IN SPINDLE - REHOME MACHINE" THEN GOTO NO_TOOL
+PAUSE "Error: " + $ATC.Status
+END
+NO_TOOL:
+$ATC.ToolIn = 0
+OK:
 
 ' === Main Program ===
 &xyHOMED = false
@@ -26,7 +37,7 @@ GOSUB backOffProx_if_needed
 GOSUB home_z
 GOSUB home_x
 GOSUB home_y
-GOSUB offset_z_cutter  ' Adds the offset for Z cutter; ONLY USEFUL if CUTTER and MATERIAL HAVE NOT BEEN CHANGED
+IF $ATC.Type = 0 THEN GOSUB offset_z_cutter
 &xyHOMED = true
 END
 '==============================
@@ -42,6 +53,9 @@ home_z:
     ZZ
     JZ, (-1 * &homeOff_Z)
     VA,,,0,,,,,,0,,,                                            ' Set 0 location and Table Base Zero
+    IF $ATC.Type = 0 THEN GOTO NO_Z_OFFSET
+    VA,,,-1*($tools[$ATC.ToolIn].H + $ATC.PlateOffset)
+    NO_Z_OFFSET:
 	RETURN
 
 home_x:

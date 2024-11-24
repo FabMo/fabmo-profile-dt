@@ -38,7 +38,12 @@ first_home_z_toProx:
     IF %(3) == &target_ck THEN GOTO fail_missed_target			' Look at current Z location to see if we went past the target
     ZZ
     JZ, (-1 * &homeOff_Z)	
-    VA,,,0,,,,,,0,,,                                            ' Set 0 location and Table Base Zero
+    VA,,,0 
+    IF $ATC.Type = 0 THEN GOTO RESET_TABLE_BASE
+    GOTO NO_RESET
+    RESET_TABLE_BASE:
+    VA,,,,,,,,,0,,,  											' Set 0 location and Table Base Zero 
+    NO_RESET:
 	RETURN
 
 find_z_zero_plate:                                              ' Now Offset to Zerol Plate for this cutter
